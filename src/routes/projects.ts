@@ -40,7 +40,7 @@ projectsRouter.get(
     const supabase = getAdminClient();
     const { data, error } = await supabase
       .from("projects")
-      .select("*")
+      .select("*, tasks(id, status)")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
@@ -48,7 +48,27 @@ projectsRouter.get(
       throw new ApiError(500, error.message);
     }
 
-    sendSuccess(response, { projects: data });
+    const projects = (data as any[]).map((project) => {
+      const tasks = Array.isArray(project.tasks)
+        ? (project.tasks as Array<{ status?: string }>)
+        : [];
+      const tasksCount = tasks.length;
+      const completedTasksCount = tasks.filter(
+        (task) => task.status === "done",
+      ).length;
+      const progress = tasksCount > 0 ? completedTasksCount / tasksCount : 0;
+
+      const formatted = {
+        ...project,
+        tasksCount,
+        completedTasksCount,
+        progress,
+      };
+      delete formatted.tasks;
+      return formatted;
+    });
+
+    sendSuccess(response, { projects });
   }),
 );
 
@@ -59,7 +79,13 @@ projectsRouter.post(
     const userId = getUserId(request.user?.id);
 
     const supabase = getAdminClient();
-    const body = request.body as { name: string; description?: string };
+    const body = request.body as {
+      name: string;
+      description?: string;
+      category?: string;
+      status?: "Planning" | "In Progress" | "Review" | "Completed";
+      dueDate?: string | null;
+    };
 
     const { data, error } = await supabase
       .from("projects")
@@ -67,6 +93,9 @@ projectsRouter.post(
         user_id: userId,
         name: body.name,
         description: body.description || null,
+        category: body.category || "General",
+        status: body.status || "Planning",
+        due_date: body.dueDate || null,
       })
       .select("*")
       .single();
@@ -110,7 +139,9 @@ projectsRouter.patch(
     const body = request.body as {
       name?: string;
       description?: string | null;
-      status?: "active" | "archived" | "completed";
+      category?: string | null;
+      status?: "Planning" | "In Progress" | "Review" | "Completed";
+      dueDate?: string | null;
     };
     const supabase = getAdminClient();
 
@@ -121,7 +152,11 @@ projectsRouter.patch(
         ...(body.description !== undefined
           ? { description: body.description }
           : {}),
+        ...(body.category !== undefined
+          ? { category: body.category ?? "General" }
+          : {}),
         ...(body.status !== undefined ? { status: body.status } : {}),
+        ...(body.dueDate !== undefined ? { due_date: body.dueDate } : {}),
       })
       .eq("id", projectId)
       .eq("user_id", userId)
@@ -190,6 +225,7 @@ projectsRouter.post(
       description?: string;
       status?: "todo" | "in_progress" | "done";
       priority?: "low" | "medium" | "high";
+      category?: string;
       dueDate?: string | null;
       orderIndex?: number;
     };
@@ -215,6 +251,7 @@ projectsRouter.post(
         description: body.description || null,
         status: body.status ?? "todo",
         priority: body.priority ?? "medium",
+        category: body.category || "General",
         due_date: body.dueDate ?? null,
         order_index: body.orderIndex ?? 0,
       })

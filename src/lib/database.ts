@@ -42,7 +42,9 @@ export interface Database {
           user_id: string;
           name: string;
           description: string | null;
-          status: "active" | "archived" | "completed";
+          status: "Planning" | "In Progress" | "Review" | "Completed";
+          category: string;
+          due_date: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -51,7 +53,9 @@ export interface Database {
           user_id: string;
           name: string;
           description?: string | null;
-          status?: "active" | "archived" | "completed";
+          status?: "Planning" | "In Progress" | "Review" | "Completed";
+          category?: string;
+          due_date?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -60,7 +64,9 @@ export interface Database {
           user_id?: string;
           name?: string;
           description?: string | null;
-          status?: "active" | "archived" | "completed";
+          status?: "Planning" | "In Progress" | "Review" | "Completed";
+          category?: string;
+          due_date?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -75,6 +81,7 @@ export interface Database {
           description: string | null;
           status: "todo" | "in_progress" | "done";
           priority: "low" | "medium" | "high";
+          category: string;
           due_date: string | null;
           order_index: number;
           created_at: string;
@@ -88,6 +95,7 @@ export interface Database {
           description?: string | null;
           status?: "todo" | "in_progress" | "done";
           priority?: "low" | "medium" | "high";
+          category?: string;
           due_date?: string | null;
           order_index?: number;
           created_at?: string;
@@ -101,6 +109,7 @@ export interface Database {
           description?: string | null;
           status?: "todo" | "in_progress" | "done";
           priority?: "low" | "medium" | "high";
+          category?: string;
           due_date?: string | null;
           order_index?: number;
           created_at?: string;

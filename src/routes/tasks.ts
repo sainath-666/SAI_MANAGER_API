@@ -28,6 +28,26 @@ function getParamId(
 
 tasksRouter.use(requireAuth);
 
+tasksRouter.get(
+  "/",
+  asyncHandler(async (request, response) => {
+    const userId = getUserId(request.user?.id);
+
+    const supabase = getAdminClient();
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .eq("user_id", userId)
+      .order("order_index", { ascending: true });
+
+    if (error) {
+      throw new ApiError(500, error.message);
+    }
+
+    sendSuccess(response, { tasks: data });
+  }),
+);
+
 tasksRouter.patch(
   "/:id",
   validateBody(taskUpdateSchema),
@@ -39,6 +59,7 @@ tasksRouter.patch(
       description?: string | null;
       status?: "todo" | "in_progress" | "done";
       priority?: "low" | "medium" | "high";
+      category?: string | null;
       dueDate?: string | null;
       orderIndex?: number;
     };
@@ -53,6 +74,9 @@ tasksRouter.patch(
           : {}),
         ...(body.status !== undefined ? { status: body.status } : {}),
         ...(body.priority !== undefined ? { priority: body.priority } : {}),
+        ...(body.category !== undefined
+          ? { category: body.category ?? "General" }
+          : {}),
         ...(body.dueDate !== undefined ? { due_date: body.dueDate } : {}),
         ...(body.orderIndex !== undefined
           ? { order_index: body.orderIndex }
