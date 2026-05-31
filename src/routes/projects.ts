@@ -56,12 +56,24 @@ projectsRouter.get(
       const completedTasksCount = tasks.filter(
         (task) => task.status === "done",
       ).length;
-      const progress = tasksCount > 0 ? completedTasksCount / tasksCount : 0;
+      const targetTasksCount = Number(project.target_tasks_count ?? 0);
+      const storedCompletedTasksCount = Number(
+        project.completed_tasks_count ?? 0,
+      );
+      const visibleTasksCount = Math.max(tasksCount, targetTasksCount);
+      const visibleCompletedTasksCount = Math.max(
+        completedTasksCount,
+        storedCompletedTasksCount,
+      );
+      const progress =
+        visibleTasksCount > 0
+          ? Math.min(visibleCompletedTasksCount / visibleTasksCount, 1)
+          : 0;
 
       const formatted = {
         ...project,
-        tasksCount,
-        completedTasksCount,
+        tasksCount: visibleTasksCount,
+        completedTasksCount: visibleCompletedTasksCount,
         progress,
       };
       delete formatted.tasks;
@@ -85,6 +97,8 @@ projectsRouter.post(
       category?: string;
       status?: "Planning" | "In Progress" | "Review" | "Completed";
       dueDate?: string | null;
+      tasksCount?: number;
+      completedTasksCount?: number;
     };
 
     const { data, error } = await supabase
@@ -96,6 +110,8 @@ projectsRouter.post(
         category: body.category || "General",
         status: body.status || "Planning",
         due_date: body.dueDate || null,
+        target_tasks_count: body.tasksCount ?? 0,
+        completed_tasks_count: body.completedTasksCount ?? 0,
       })
       .select("*")
       .single();
@@ -104,7 +120,24 @@ projectsRouter.post(
       throw new ApiError(500, error.message);
     }
 
-    sendSuccess(response, { project: data }, 201);
+    sendSuccess(
+      response,
+      {
+        project: {
+          ...data,
+          tasksCount: data.target_tasks_count ?? 0,
+          completedTasksCount: data.completed_tasks_count ?? 0,
+          progress:
+            data.target_tasks_count && data.target_tasks_count > 0
+              ? Math.min(
+                  (data.completed_tasks_count ?? 0) / data.target_tasks_count,
+                  1,
+                )
+              : 0,
+        },
+      },
+      201,
+    );
   }),
 );
 
@@ -126,7 +159,20 @@ projectsRouter.get(
       throw new ApiError(404, "Project not found");
     }
 
-    sendSuccess(response, { project: data });
+    sendSuccess(response, {
+      project: {
+        ...data,
+        tasksCount: data.target_tasks_count ?? 0,
+        completedTasksCount: data.completed_tasks_count ?? 0,
+        progress:
+          data.target_tasks_count && data.target_tasks_count > 0
+            ? Math.min(
+                (data.completed_tasks_count ?? 0) / data.target_tasks_count,
+                1,
+              )
+            : 0,
+      },
+    });
   }),
 );
 
@@ -142,6 +188,8 @@ projectsRouter.patch(
       category?: string | null;
       status?: "Planning" | "In Progress" | "Review" | "Completed";
       dueDate?: string | null;
+      tasksCount?: number;
+      completedTasksCount?: number;
     };
     const supabase = getAdminClient();
 
@@ -157,6 +205,12 @@ projectsRouter.patch(
           : {}),
         ...(body.status !== undefined ? { status: body.status } : {}),
         ...(body.dueDate !== undefined ? { due_date: body.dueDate } : {}),
+        ...(body.tasksCount !== undefined
+          ? { target_tasks_count: body.tasksCount }
+          : {}),
+        ...(body.completedTasksCount !== undefined
+          ? { completed_tasks_count: body.completedTasksCount }
+          : {}),
       })
       .eq("id", projectId)
       .eq("user_id", userId)

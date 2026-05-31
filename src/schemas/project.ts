@@ -12,6 +12,8 @@ export const projectCreateSchema = z.object({
     .enum(["Planning", "In Progress", "Review", "Completed"])
     .optional()
     .default("Planning"),
+  tasksCount: z.number().int().nonnegative().optional().default(0),
+  completedTasksCount: z.number().int().nonnegative().optional().default(0),
   dueDate: dateString.nullable().optional().default(null),
 });
 
@@ -20,5 +22,7 @@ export const projectUpdateSchema = z.object({
   description: z.string().max(500).nullable().optional(),
   category: z.string().min(1).nullable().optional(),
   status: z.enum(["Planning", "In Progress", "Review", "Completed"]).optional(),
+  tasksCount: z.number().int().nonnegative().optional(),
+  completedTasksCount: z.number().int().nonnegative().optional(),
   dueDate: dateString.nullable().optional(),
 });

@@ -6,6 +6,7 @@ import { authRouter } from "./routes/auth.js";
 import { usersRouter } from "./routes/users.js";
 import { projectsRouter } from "./routes/projects.js";
 import { tasksRouter } from "./routes/tasks.js";
+import { financeRouter } from "./routes/finance.js";
 import { ApiError, sendError } from "./lib/http.js";
 
 export function createApp() {
@@ -30,6 +31,7 @@ export function createApp() {
   app.use("/api/users", usersRouter);
   app.use("/api/projects", projectsRouter);
   app.use("/api/tasks", tasksRouter);
+  app.use("/api/finance", financeRouter);
 
   app.use((request, _response, next) => {
     next(

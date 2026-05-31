@@ -3,7 +3,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { asyncHandler, ApiError, sendSuccess } from "../lib/http.js";
 import { getAdminClient } from "../lib/supabase.js";
 import { validateBody } from "../middleware/validate.js";
-import { taskUpdateSchema } from "../schemas/task.js";
+import { taskCreateSchema, taskUpdateSchema } from "../schemas/task.js";
 
 export const tasksRouter = Router();
 
@@ -48,6 +48,60 @@ tasksRouter.get(
   }),
 );
 
+tasksRouter.post(
+  "/",
+  validateBody(taskCreateSchema),
+  asyncHandler(async (request, response) => {
+    const userId = getUserId(request.user?.id);
+    const body = request.body as {
+      projectId?: string | null;
+      title: string;
+      description?: string;
+      status?: "todo" | "in_progress" | "done";
+      priority?: "low" | "medium" | "high";
+      category?: string;
+      dueDate?: string | null;
+      orderIndex?: number;
+    };
+    const supabase = getAdminClient();
+
+    if (body.projectId) {
+      const { data: project } = await supabase
+        .from("projects")
+        .select("id")
+        .eq("id", body.projectId)
+        .eq("user_id", userId)
+        .single();
+
+      if (!project) {
+        throw new ApiError(404, "Project not found");
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .insert({
+        project_id: body.projectId ?? null,
+        user_id: userId,
+        title: body.title,
+        description: body.description || null,
+        status: body.status ?? "todo",
+        priority: body.priority ?? "medium",
+        category: body.category || "General",
+        due_date: body.dueDate ?? null,
+        order_index: body.orderIndex ?? 0,
+      })
+      .select("*")
+      .single();
+
+    if (error) {
+      throw new ApiError(500, error.message);
+    }
+
+    sendSuccess(response, { task: data }, 201);
+  }),
+);
+
 tasksRouter.patch(
   "/:id",
   validateBody(taskUpdateSchema),
@@ -62,6 +116,7 @@ tasksRouter.patch(
       category?: string | null;
       dueDate?: string | null;
       orderIndex?: number;
+      projectId?: string | null;
     };
     const supabase = getAdminClient();
 
@@ -81,6 +136,7 @@ tasksRouter.patch(
         ...(body.orderIndex !== undefined
           ? { order_index: body.orderIndex }
           : {}),
+        ...(body.projectId !== undefined ? { project_id: body.projectId } : {}),
       })
       .eq("id", taskId)
       .eq("user_id", userId)

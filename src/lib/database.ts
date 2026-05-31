@@ -44,6 +44,8 @@ export interface Database {
           description: string | null;
           status: "Planning" | "In Progress" | "Review" | "Completed";
           category: string;
+          target_tasks_count: number;
+          completed_tasks_count: number;
           due_date: string | null;
           created_at: string;
           updated_at: string;
@@ -55,6 +57,8 @@ export interface Database {
           description?: string | null;
           status?: "Planning" | "In Progress" | "Review" | "Completed";
           category?: string;
+          target_tasks_count?: number;
+          completed_tasks_count?: number;
           due_date?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -66,6 +70,8 @@ export interface Database {
           description?: string | null;
           status?: "Planning" | "In Progress" | "Review" | "Completed";
           category?: string;
+          target_tasks_count?: number;
+          completed_tasks_count?: number;
           due_date?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -75,7 +81,7 @@ export interface Database {
       tasks: {
         Row: {
           id: string;
-          project_id: string;
+          project_id: string | null;
           user_id: string;
           title: string;
           description: string | null;
@@ -89,7 +95,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          project_id: string;
+          project_id?: string | null;
           user_id: string;
           title: string;
           description?: string | null;
@@ -103,7 +109,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          project_id?: string;
+          project_id?: string | null;
           user_id?: string;
           title?: string;
           description?: string | null;
@@ -112,6 +118,42 @@ export interface Database {
           category?: string;
           due_date?: string | null;
           order_index?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      transactions: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          amount: number;
+          type: "income" | "expense";
+          category: string;
+          date: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          amount: number;
+          type: "income" | "expense";
+          category?: string;
+          date: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          amount?: number;
+          type?: "income" | "expense";
+          category?: string;
+          date?: string;
           created_at?: string;
           updated_at?: string;
         };

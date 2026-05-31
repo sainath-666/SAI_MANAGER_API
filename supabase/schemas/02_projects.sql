@@ -5,6 +5,8 @@ create table if not exists public.projects (
   description text,
   status text not null default 'Planning' check (status in ('Planning', 'In Progress', 'Review', 'Completed')),
   category text not null default 'General',
+  target_tasks_count integer not null default 0 check (target_tasks_count >= 0),
+  completed_tasks_count integer not null default 0 check (completed_tasks_count >= 0),
   due_date date,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

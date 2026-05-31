@@ -14,19 +14,24 @@ create table if not exists public.projects (
   user_id uuid not null references auth.users(id) on delete cascade,
   name text not null,
   description text,
-  status text not null default 'active' check (status in ('active', 'archived', 'completed')),
+  status text not null default 'Planning' check (status in ('Planning', 'In Progress', 'Review', 'Completed')),
+  category text not null default 'General',
+  target_tasks_count integer not null default 0 check (target_tasks_count >= 0),
+  completed_tasks_count integer not null default 0 check (completed_tasks_count >= 0),
+  due_date date,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 create table if not exists public.tasks (
   id uuid primary key default gen_random_uuid(),
-  project_id uuid not null references public.projects(id) on delete cascade,
+  project_id uuid references public.projects(id) on delete set null,
   user_id uuid not null references auth.users(id) on delete cascade,
   title text not null,
   description text,
   status text not null default 'todo' check (status in ('todo', 'in_progress', 'done')),
   priority text not null default 'medium' check (priority in ('low', 'medium', 'high')),
+  category text not null default 'General',
   due_date date,
   order_index integer not null default 0,
   created_at timestamptz not null default now(),
@@ -37,9 +42,25 @@ create index if not exists projects_user_id_idx on public.projects (user_id);
 create index if not exists tasks_user_id_idx on public.tasks (user_id);
 create index if not exists tasks_project_id_idx on public.tasks (project_id);
 
+create table if not exists public.transactions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  title text not null,
+  amount numeric(12, 2) not null check (amount >= 0),
+  type text not null check (type in ('income', 'expense')),
+  category text not null default 'General',
+  date timestamptz not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists transactions_user_id_idx on public.transactions (user_id);
+create index if not exists transactions_date_idx on public.transactions (date);
+
 alter table public.profiles enable row level security;
 alter table public.projects enable row level security;
 alter table public.tasks enable row level security;
+alter table public.transactions enable row level security;
 
 create policy "profiles are readable by owner" on public.profiles
   for select using (auth.uid() = id);
@@ -72,4 +93,16 @@ create policy "tasks are updatable by owner" on public.tasks
   for update using (auth.uid() = user_id);
 
 create policy "tasks are deletable by owner" on public.tasks
+  for delete using (auth.uid() = user_id);
+
+create policy "transactions are readable by owner" on public.transactions
+  for select using (auth.uid() = user_id);
+
+create policy "transactions are insertable by owner" on public.transactions
+  for insert with check (auth.uid() = user_id);
+
+create policy "transactions are updatable by owner" on public.transactions
+  for update using (auth.uid() = user_id);
+
+create policy "transactions are deletable by owner" on public.transactions
   for delete using (auth.uid() = user_id);

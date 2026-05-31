@@ -5,6 +5,7 @@ const dateString = z
   .regex(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/, "Use YYYY-MM-DD");
 
 export const taskCreateSchema = z.object({
+  projectId: z.string().uuid().nullable().optional().default(null),
   title: z.string().min(1),
   description: z.string().max(1000).optional().default(""),
   status: z.enum(["todo", "in_progress", "done"]).optional().default("todo"),
@@ -15,6 +16,7 @@ export const taskCreateSchema = z.object({
 });
 
 export const taskUpdateSchema = z.object({
+  projectId: z.string().uuid().nullable().optional(),
   title: z.string().min(1).optional(),
   description: z.string().max(1000).nullable().optional(),
   status: z.enum(["todo", "in_progress", "done"]).optional(),
