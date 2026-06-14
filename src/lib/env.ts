@@ -1,6 +1,15 @@
 import dotenv from "dotenv";
+import path from "path";
 import { z } from "zod";
 
+const nodeEnv = process.env.NODE_ENV || "development";
+
+// Load environment-specific file
+dotenv.config({
+  path: path.resolve(process.cwd(), `.env.${nodeEnv}`),
+});
+
+// Fallback to default .env if specific file doesn't exist
 dotenv.config();
 
 const envSchema = z.object({
