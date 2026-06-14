@@ -1,6 +1,6 @@
 # SAI Manager API
 
-Node.js + Express API for the SAI Manager UI, backed by Supabase.
+Node.js + Express + TypeScript REST API for the SAI Manager Flutter app, backed by Supabase.
 
 ## Setup
 
@@ -10,52 +10,136 @@ Node.js + Express API for the SAI Manager UI, backed by Supabase.
 npm install
 ```
 
-2. Create your local env file from the example and fill the values.
+2. Copy the env example and fill in your Supabase values.
 
 ```bash
 copy .env.example .env
 ```
 
-3. Start the API.
+3. Run the Supabase SQL schema against your project (Dashboard → SQL Editor).
+
+```
+supabase/schema.sql
+```
+
+4. Seed the database with demo data.
+
+```bash
+npm run seed
+```
+
+5. Start the API.
 
 ```bash
 npm run dev
 ```
 
-## Environment
+## Environment Variables
 
-Required values:
-
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-
-Optional values:
-
-- `SUPABASE_ANON_KEY`
-- `PORT`
-- `NODE_ENV`
+| Variable | Required | Description |
+|---|---|---|
+| `SUPABASE_URL` | ✅ | Your Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Service-role key (never expose client-side) |
+| `SUPABASE_ANON_KEY` | — | Anon key (optional, for future use) |
+| `PORT` | — | HTTP port (default: 3000) |
+| `NODE_ENV` | — | Environment (default: development) |
 
 ## API Endpoints
 
-Base path: `/api`
+All routes are under base path `/api`.  
+Protected routes require `Authorization: Bearer <access_token>`.
 
-- `GET /health`
-- `POST /auth/register`
-- `POST /auth/login`
-- `GET /users/me`
-- `GET /projects`
-- `POST /projects`
-- `GET /projects/:id`
-- `PATCH /projects/:id`
-- `DELETE /projects/:id`
-- `GET /projects/:id/tasks`
-- `POST /projects/:id/tasks`
-- `PATCH /tasks/:id`
-- `DELETE /tasks/:id`
+### Auth
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/auth/register` | — | Create a new account |
+| POST | `/auth/login` | — | Sign in and get a session token |
+
+### Users
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/users/me` | ✅ | Get the current user's profile |
+
+### Tasks
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/tasks` | ✅ | List all tasks for the user |
+| POST | `/tasks` | ✅ | Create a task |
+| PATCH | `/tasks/:id` | ✅ | Update a task |
+| DELETE | `/tasks/:id` | ✅ | Delete a task |
+
+### Projects
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/projects` | ✅ | List all projects (with computed progress) |
+| POST | `/projects` | ✅ | Create a project |
+| GET | `/projects/:id` | ✅ | Get a single project |
+| PATCH | `/projects/:id` | ✅ | Update a project |
+| DELETE | `/projects/:id` | ✅ | Delete a project |
+| GET | `/projects/:id/tasks` | ✅ | List tasks linked to a project |
+| POST | `/projects/:id/tasks` | ✅ | Create a task inside a project |
+
+### Finance
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/finance/summary` | ✅ | Computed balance, monthly income/expenses, weekly chart data |
+| GET | `/finance/transactions` | ✅ | List all transactions |
+| POST | `/finance/transactions` | ✅ | Add a transaction |
+| PATCH | `/finance/transactions/:id` | ✅ | Update a transaction |
+| DELETE | `/finance/transactions/:id` | ✅ | Delete a transaction |
+
+### Notes
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/notes` | ✅ | List all notes (pinned first) |
+| POST | `/notes` | ✅ | Create a note |
+| PATCH | `/notes/:id` | ✅ | Update a note |
+| DELETE | `/notes/:id` | ✅ | Delete a note |
+
+### Habits (Goals)
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/habits` | ✅ | List all habits |
+| POST | `/habits` | ✅ | Create a habit |
+| PATCH | `/habits/:id` | ✅ | Update a habit (toggle completion, update streak) |
+| DELETE | `/habits/:id` | ✅ | Delete a habit |
+
+### Calendar
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/calendar` | ✅ | List all calendar events |
+| POST | `/calendar` | ✅ | Create an event |
+| PATCH | `/calendar/:id` | ✅ | Update an event |
+| DELETE | `/calendar/:id` | ✅ | Delete an event |
+
+### Health
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/health` | — | Server health check |
 
 ## Database
 
-The starter Supabase schema is in `supabase/schema.sql`.
+The complete schema is in `supabase/schema.sql`. Run it once in the Supabase SQL Editor. Individual table files are in `supabase/schemas/`.
+
+**Tables:**
+- `profiles` — user profile (1:1 with auth.users)
+- `projects` — projects with task counts and progress
+- `tasks` — tasks linked optionally to a project
+- `transactions` — income / expense records
+- `notes` — pinnable rich-text notes
+- `habits` — daily habits with streak tracking
+- `calendar_events` — scheduled events with time and color
+
+All tables have Row Level Security (RLS) enabled — users can only access their own rows.
+
+## Demo Credentials
+
+After running `npm run seed`:
+
+| Field | Value |
+|---|---|
+| Email | `demo@sai-manager.com` |
+| Password | `Password123!` |
 
 ## Tests
 
