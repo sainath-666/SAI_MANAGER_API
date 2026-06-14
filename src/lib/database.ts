@@ -159,6 +159,111 @@ export interface Database {
         };
         Relationships: [];
       };
+      notes: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          content: string;
+          category: string;
+          is_pinned: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          content: string;
+          category?: string;
+          is_pinned?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          content?: string;
+          category?: string;
+          is_pinned?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      habits: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          streak: number;
+          is_completed: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          streak?: number;
+          is_completed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          streak?: number;
+          is_completed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      calendar_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          description: string;
+          date: string;
+          start_time: string;
+          end_time: string;
+          color_hex: string;
+          category: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          description?: string;
+          date: string;
+          start_time: string;
+          end_time: string;
+          color_hex: string;
+          category?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          description?: string;
+          date?: string;
+          start_time?: string;
+          end_time?: string;
+          color_hex?: string;
+          category?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "seed": "tsx src/seed.ts",
     "build": "npm install --include=dev && tsc -p tsconfig.json && node -e \"if(process.env.NODE_ENV === 'production') require('child_process').execSync('npm prune --omit=dev', {stdio: 'inherit'})\"",
     "start": "node dist/server.js",
     "lint": "tsc -p tsconfig.json --noEmit",

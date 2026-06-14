@@ -7,6 +7,9 @@ import { usersRouter } from "./routes/users.js";
 import { projectsRouter } from "./routes/projects.js";
 import { tasksRouter } from "./routes/tasks.js";
 import { financeRouter } from "./routes/finance.js";
+import { notesRouter } from "./routes/notes.js";
+import { habitsRouter } from "./routes/habits.js";
+import { calendarRouter } from "./routes/calendar.js";
 import { ApiError, sendError } from "./lib/http.js";
 
 export function createApp() {
@@ -32,6 +35,9 @@ export function createApp() {
   app.use("/api/projects", projectsRouter);
   app.use("/api/tasks", tasksRouter);
   app.use("/api/finance", financeRouter);
+  app.use("/api/notes", notesRouter);
+  app.use("/api/habits", habitsRouter);
+  app.use("/api/calendar", calendarRouter);
 
   app.use((request, _response, next) => {
     next(
