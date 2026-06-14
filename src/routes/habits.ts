@@ -3,7 +3,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { asyncHandler, ApiError, sendSuccess } from "../lib/http.js";
 import { getAdminClient } from "../lib/supabase.js";
 import { validateBody } from "../middleware/validate.js";
-import { habitCreateSchema, habitUpdateSchema } from "../schemas/habit.ts";
+import { habitCreateSchema, habitUpdateSchema } from "../schemas/habit.js";
 
 export const habitsRouter = Router();
 

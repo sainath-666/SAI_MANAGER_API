@@ -3,7 +3,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { asyncHandler, ApiError, sendSuccess } from "../lib/http.js";
 import { getAdminClient } from "../lib/supabase.js";
 import { validateBody } from "../middleware/validate.js";
-import { calendarEventCreateSchema, calendarEventUpdateSchema } from "../schemas/calendarEvent.ts";
+import { calendarEventCreateSchema, calendarEventUpdateSchema } from "../schemas/calendarEvent.js";
 
 export const calendarRouter = Router();
 

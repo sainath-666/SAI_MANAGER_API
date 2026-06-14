@@ -3,7 +3,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { asyncHandler, ApiError, sendSuccess } from "../lib/http.js";
 import { getAdminClient } from "../lib/supabase.js";
 import { validateBody } from "../middleware/validate.js";
-import { noteCreateSchema, noteUpdateSchema } from "../schemas/note.ts";
+import { noteCreateSchema, noteUpdateSchema } from "../schemas/note.js";
 
 export const notesRouter = Router();
 
