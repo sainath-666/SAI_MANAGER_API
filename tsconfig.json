@@ -9,9 +9,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "src",
     "types": ["node", "vitest/globals"]
   },
-  "include": ["src", "vitest.config.ts"],
+  "include": ["src"],
   "exclude": ["dist", "node_modules"]
 }
